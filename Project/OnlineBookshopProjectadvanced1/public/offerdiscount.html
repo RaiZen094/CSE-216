@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Information</title>
+    <style>
+        body{
+            background-color: #5e2c1cdc;;
+        }
+        table{
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid black;
+            background-color: rgb(155, 198, 241); 
+        }
+
+        th,td{
+            border: 1px solid black; 
+            padding: 8px;
+            text-align: left;
+        }
+
+        tr:nth-child(odd) {
+            background-color: rgba(147, 248, 114, 0.781); /* Change this color as desired */
+        }
+
+        tr:nth-child(even) {
+            background-color: #e289d6; /* Change this color as desired */
+        }
+
+        
+        #backButton{
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Add hover effect */
+        #backButton:hover 
+        {
+            background-color: #0056b3;
+        }
+        
+    </style>
+</head>
+<body>
+    <input type="text" id="bookid" placeholder="Book Id" style="width: 300px; height: 50px; padding: 10px; font-size: 16px;"/>
+    <input type="text" id="discount" placeholder="Discount" style="width: 300px; height: 50px; padding: 10px; font-size: 16px;"/>
+    <button onclick="processInput()">submit</button>
+    <button id="backButton">Back</button>
+    <p></p><p><p><p><p><p></p></p></p></p></p></p>
+    <table id="booktTable">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>CATEGORIES</th>
+            <th>AUTHOR</th>
+            <th>PUBLISHER</th>
+            <th>PRICE</th>
+            <th>DISCOUNT</th>
+        </tr>
+    </table>
+    <script src="offerdiscount.js"></script>
+</body>
+</html>

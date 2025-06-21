@@ -1,0 +1,97 @@
+-- 1
+-- Find the courses that have the highest enrollment count in each semester. Order the output according to semester and year.
+
+SELECT s.semester, s.year, c.title AS course_title, COUNT(DISTINCT t.ID) AS enrollment_count
+FROM section  s
+  JOIN course c ON s.course_id = c.course_id
+  JOIN takes  t ON s.course_id = t.course_id AND s.sec_id = t.sec_id AND s.semester = t.semester AND s.year = t.year
+GROUP BY s.semester, s.year, c.title
+HAVING COUNT(t.ID) = (
+  SELECT MAX(enrollment_count)
+  FROM (
+    SELECT COUNT(t.ID) AS enrollment_count, s.semester, s.year
+    FROM section s
+      JOIN takes t ON s.course_id = t.course_id AND s.sec_id = t.sec_id AND s.semester = t.semester AND s.year = t.year
+    GROUP BY s.semester, s.year, s.course_id
+  ) counts
+  WHERE counts.semester = s.semester AND counts.year = s.year
+)
+ORDER BY s.YEAR, s.SEMESTER;
+
+-- 2
+-- Find the distinct courses taught by instructors with at least 100 students received a grade of A+
+
+SELECT DISTINCT (c.course_id || ' ' || c.title)  AS course_title
+FROM course c
+WHERE c.course_id IN (
+  SELECT t.course_id
+  FROM teaches t
+    JOIN takes tk ON t.course_id = tk.course_id
+  WHERE tk.grade = 'A+'
+  GROUP BY t.course_id
+  HAVING count(*)>=100
+)
+ORDER BY course_title;
+
+-- 3
+-- Find the distinct course IDs and titles that appear in either the "Comp. Sci." department or have a prerequisite in the "Math" department
+
+SELECT course_id, title, DEPT_NAME 
+FROM course
+WHERE dept_name = 'Comp. Sci.'
+UNION
+SELECT course_id, title, DEPT_NAME 
+FROM course
+WHERE course_id IN (
+  SELECT p.course_id
+  FROM prereq p
+  WHERE p.PREREQ_ID IN (
+    SELECT c2.course_id
+    FROM course c2
+    WHERE c2.dept_name = 'Math'
+  )
+)
+ORDER BY DEPT_NAME;
+
+-- 4
+-- Find the courses that have conflicting time slots (overlapping schedules)
+
+SELECT DISTINCT c1.course_id, c1.title AS course_title, c2.course_id, c2.title AS conflicting_course
+FROM course c1
+  JOIN section s1 ON c1.course_id = s1.course_id
+  JOIN time_slot t1 ON s1.time_slot_id = t1.time_slot_id
+  JOIN section s2 ON s2.time_slot_id <> s1.time_slot_id AND s2.semester = s1.semester AND s2.year = s1.YEAR
+  JOIN course c2 ON s2.course_id = c2.course_id
+  JOIN time_slot t2 ON s2.time_slot_id = t2.time_slot_id 
+WHERE t1.DAY = t2.DAY AND  (
+  (t1.start_hr < t2.end_hr AND t1.end_hr > t2.start_hr)
+  OR (t1.start_hr = t2.start_hr AND t1.start_min < t2.end_min)
+  OR (t1.end_hr = t2.end_hr AND t1.end_min > t2.start_min)
+)
+ORDER BY c1.course_id, c2.course_id;
+
+-- 5
+-- Find the instructors who have taught courses with enrollment counts higher than the average enrollment count of all courses in that semester
+
+SELECT i.name AS instructor_name, count(*) ENROLLMENT_COUNT, t.SEMESTER, t.YEAR, (SELECT title FROM COURSE c WHERE c.COURSE_ID=tk.COURSE_ID) COURSE_TITLE
+FROM instructor i
+  JOIN teaches t ON i.ID = t.ID
+  JOIN takes tk ON t.course_id = tk.course_id AND t.sec_id = tk.sec_id AND t.semester = tk.semester AND t.year = tk.year
+  JOIN (
+    SELECT course_id, semester, year, COUNT(*) AS enrollment_count
+    FROM takes
+    GROUP BY course_id, semester, year
+  ) avg_counts ON tk.course_id = avg_counts.course_id AND tk.semester = avg_counts.semester AND tk.year = avg_counts.year
+GROUP BY i.ID, i.name, t.SEMESTER, t.YEAR, tk.COURSE_ID 
+HAVING COUNT(DISTINCT tk.ID) > ALL (
+  SELECT AVG(enrollment_count)
+  FROM (
+    SELECT course_id, semester, year, COUNT(*) AS enrollment_count
+    FROM takes
+    GROUP BY course_id, semester, year
+  ) avg_counts
+)
+ORDER BY t.YEAR, t.SEMESTER, i.NAME;
+
+
+

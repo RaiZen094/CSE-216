@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family:Arial,sans-serif;
+            margin:0;
+            padding:0;
+            display:flex;
+            align-items:center;
+            justify-content:flex-start;
+            height:100vh;
+            background-color:#92b69a;
+        }
+        
+        .title {
+            margin-top: 20px;
+        }
+        
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            margin-left: 20px;
+        } 
+        button {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+        button:hover {
+            box-shadow: 10 10 15px rgba(0, 123, 255, 0.7);
+            transform: scale(1.05);
+        }
+
+        #authorDropdown 
+        {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333; /* Set the color you prefer */
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgb(251, 246, 216);
+        }
+        #authorDropdown option 
+        {
+            padding: 10px;
+        }
+
+        #publisherDropdown 
+        {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333; /* Set the color you prefer */
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgb(251, 246, 216);
+        }
+        #publisherDropdown option 
+        {
+            padding: 10px;
+        }
+        .custom-dropdown {
+            display: flex;
+            align-items: center; /* Vertically align button and dropdown */
+            gap: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+        }
+
+        select.custom-dropdown {
+            /* ... (existing dropdown styles) ... */
+            width: auto; /* Let the dropdown adjust its width based on content */
+            min-width: 150px; /* Set a minimum width to prevent dropdown from becoming too narrow */
+        }
+
+       
+        /* Adjusted styles for alternating row colors */
+        #authorDropdown option:nth-child(odd) {
+            background-color: white;
+        }
+
+        #authorDropdown option:nth-child(even) {
+            background-color: #f0f0f0; /* Change this color as desired */
+        }
+        #publisherDropdown option:nth-child(odd) {
+            background-color: white;
+        }
+
+        #publisherDropdown option:nth-child(even) {
+            background-color: #f0f0f0; /* Change this color as desired */
+        }
+
+
+    </style>
+</head>
+<body>
+    <h1 class="title">Manager Workspace</h1>
+    <div class="button-container">
+        <button id="sbp">Publications' total Books</button>
+        <button id="sba">Authors' total books</button>
+        <div class="dropdown-container">
+            <button id="authorDropdownBtn">Books of an Author ▼</button>
+            <select id="authorDropdown" style="display: none;">
+
+            </select>
+            <p><p></p></p>
+            <button id="publisherDropdownBtn">Books of a Publisher</button>
+            <select id="publisherDropdown" style="display: none;">
+
+            </select>
+        </div>
+        <button id="bob">Buy Old Books</button>
+        <button id="anb">Add New Books</button>
+        <button id="od">Offer Discount</button>
+        <button id="bi">BookShop Information</button>
+        <button id="ei">Employess Information</button>
+        <button id="ane">Add New Employee</button>
+        <button id="shownotification">Notification</button>
+    </div>
+    <script src="managerworkpage.js"></script>
+</body>
+
+</html>

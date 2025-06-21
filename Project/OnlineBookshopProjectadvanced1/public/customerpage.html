@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <style>
+        body{
+            background-color: aquamarine;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Library</h1>
+    <button id="showBookInfoButton">Show Book Info</button>
+    <script >
+            const showBookInfoButton = document.getElementById("showBookInfoButton");
+            showBookInfoButton.addEventListener("click", () => {
+                window.location.href = "showallbook.html";
+            });
+       
+    </script>
+</body>
+</html>

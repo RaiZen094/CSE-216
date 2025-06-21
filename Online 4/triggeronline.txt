@@ -1,0 +1,66 @@
+
+-- Solution of Problem 1
+CREATE OR REPLACE TRIGGER employees_constraint_trigger
+BEFORE INSERT ON employees
+FOR EACH ROW
+DECLARE
+candidate_email VARCHAR2(50);
+candidate_phone VARCHAR2(50);
+BEGIN
+  candidate_email := LOWER(:NEW.last_name || '.' || :NEW.job_id || '@orcl.com'); 
+  candidate_phone := '5555-' || :NEW.employee_id || '-' || NVL(TO_CHAR(:NEW.department_id),'000');
+--   dbms_output.put_line(candidate_email); 
+--   dbms_output.put_line(candidate_phone);
+--   dbms_output.put_line(:NEW.EMAIL);
+  IF :NEW.EMAIL IS NULL or :NEW.EMAIL <> candidate_email THEN
+    :NEW.EMAIL := candidate_email;
+  END IF;
+
+  IF :NEW.phone_number IS NULL or :NEW.phone_number <> candidate_phone THEN
+    :NEW.phone_number := candidate_phone;
+  END IF;
+
+  IF :NEW.salary < 0 THEN
+    RAISE_APPLICATION_ERROR(-20000, 'Negative Value in Salary Field. Insertion Aborted');
+  END IF;
+END;
+/
+
+
+-- Solution of Problem 2
+CREATE TABLE Salary_History(
+    HISTORY_ID NUMBER,
+    EMPLOYEE_ID NUMBER,
+    OLD_SALARY NUMBER,
+    NEW_SALARY NUMBER,
+    CHANGE_DATE DATE,
+    CHANGE_TYPE VARCHAR2(50)
+);
+
+CREATE SEQUENCE Salary_History_Seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER Salary_Change_Trigger
+AFTER INSERT OR UPDATE OR DELETE OF SALARY ON Employees
+FOR EACH ROW
+DECLARE
+    v_change_type VARCHAR2(50);
+	emp_id number;
+BEGIN
+    IF :NEW.SALARY IS NULL THEN
+        v_change_type := 'DELETE';
+		emp_id := :OLD.EMPLOYEE_ID;
+		
+    ELSIF :OLD.SALARY IS NULL THEN
+		v_change_type := 'INSERT';
+		emp_id := :NEW.EMPLOYEE_ID;
+		
+	ELSE
+	    v_change_type := 'UPDATE';
+		emp_id := :NEW.EMPLOYEE_ID;
+	END IF;
+	
+	INSERT INTO Salary_History (HISTORY_ID, EMPLOYEE_ID, OLD_SALARY, NEW_SALARY, CHANGE_DATE, CHANGE_TYPE)
+	VALUES (Salary_History_Seq.NEXTVAL, emp_id, :OLD.SALARY, :NEW.SALARY, SYSDATE, v_change_type);
+    
+END;
+/

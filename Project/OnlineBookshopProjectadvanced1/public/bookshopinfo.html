@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* styles.css */
+body{
+    background-color: rgb(238, 232, 132);
+}
+.customer-info {
+    background-color: lightgray;
+}
+
+.other-div {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.blue-bg {
+    background-color: lightblue;
+}
+
+.green-bg {
+    background-color: lightgreen;
+}
+
+.orange-bg {
+    background-color: orange;
+}
+
+.cursive-text {
+    font-family: cursive;
+}
+
+.number-text {
+    color: red; 
+}
+
+    </style>
+</head>
+<body>
+    <div>
+        <div class="customer-info">
+            <h1 class="cursive-text">Total Customer: <span id="customerCount" class="number-text">Loading...</span></h1>
+         </div>
+         <div class="other-div blue-bg">
+            <h1 class="cursive-text">Titles: <span id="titlesCount" class="number-text">Loading...</span></h1>
+         </div>
+         <div class="other-div green-bg">
+            <h1 class="cursive-text">Inventory: <span id="inventoryCount" class="number-text">Loading...</span> books</h1>
+         </div>
+         <div class="other-div orange-bg">
+            <h1 class="cursive-text">Stockvalue: <span id="stockvalue" class="number-text">Loading...</span> Tk</h1>
+         </div>
+
+    </div>
+    <script src="bookshopinfo.js"></script>
+</body>
+</html>

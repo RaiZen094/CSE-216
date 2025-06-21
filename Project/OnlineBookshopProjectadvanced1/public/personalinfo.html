@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Bookshop</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 30%;
+            background-color: #2a3d66;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-photo {
+            width: 150px;
+            height: 150px;
+            background-color: #ccc; /* Placeholder for user photo */
+            margin-bottom: 20px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .user-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-details {
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #2a3d66;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1e2b4a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>UPDATE INFO</h1>
+            <input type="text" id="newPassword" placeholder="Enter new password">
+            <button id="changePasswordBtn">Change Password</button>
+            <input type="text" id="newemail" placeholder="Enter new email">
+            <button id="changeEmailBtn">Change Email</button>
+            <input type="text" id="newAddress" placeholder="Enter new address">
+            <button id="changeAddressBtn">Change Address</button>
+            <input type="text" id="newphone" placeholder="Change Phone">
+            <button id="changephoneBtn">Change Phone</button>
+            <input type="text" id="addphone" placeholder="Add Phone">
+            <button id="addphoneBtn">Add Phone</button>
+            <button id="deletephn">Delete Phone_No</button>
+            <button id="deactivated">Deactivate Account</button>
+        </div>
+        <div class="content">
+            <div class="user-info">
+                <div class="user-photo">
+                    <img src="Image/dummy.jpg" alt="User Photo">
+                </div>
+                <div class="user-details" id="customerInfo">
+                    <!-- User information will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Function to fetch and update customer information
+        async function fetchCustomerInfo() {
+            try {
+                const response = await fetch(`/customerInfo/`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch customer information');
+                }
+                const data = await response.json();
+
+                // Update the user details
+                const userPhoto = document.querySelector('.user-photo');
+                const userDetailDiv = document.getElementById('customerInfo');
+                userDetailDiv.innerHTML = ''; // Clear any existing content
+
+                if (data.length > 0) {
+                    const customerData = data[0];
+
+                    // Update user details with retrieved data
+                    userPhoto.innerHTML = `<img src="Image/dummy.jpg" alt="User Photo">`;
+                    userDetailDiv.innerHTML += `<h1>Your Information</h1>`;
+                    userDetailDiv.innerHTML += `<h2>CUSTOMER_ID: ${customerData.CUSTOMER_ID}</h2>`;
+                    userDetailDiv.innerHTML += `<h2>USERNAME: ${customerData.USERNAME}</h2>`;
+                   // userDetailDiv.innerHTML += `<p>PASSWORD: ${customerData.PASSWORD}</p>`;
+                    userDetailDiv.innerHTML += `<p>EMAIL: ${customerData.EMAIL}</p>`;
+                    userDetailDiv.innerHTML += `<p>ADDRESS: ${customerData.ADDRESS}</p>`;
+                    userDetailDiv.innerHTML += `<p>PHONE_NO: ${customerData.PHONE_NO}</p>`;
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Call the function with a specific customer_id
+        //const customer_id = 123; // Replace with the actual customer_id you want to fetch
+        fetchCustomerInfo();
+        // ... (previous code)
+
+        // Function to change customer password
+        async function changeCustomerPassword(newPassword) {
+            try {
+                const response = await fetch(`/customerpasswardchange/${newPassword}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to change password');
+                }
+
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        changePasswordBtn.addEventListener('click', () => {
+            const newPassword = document.getElementById('newPassword').value;
+
+            // Call the function to change the password
+            changeCustomerPassword(newPassword);
+        });
+
+          // Function to change customer password
+          async function changeCustomeremail(newemail) {
+            try {
+                const response = await fetch(`/customeremailchange/${newemail}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to change email');
+                }
+                
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const changeEmailBtn = document.getElementById('changeEmailBtn');
+        changeEmailBtn.addEventListener('click', () => {
+            const newemail= document.getElementById('newemail').value;
+
+            // Call the function to change the password
+            changeCustomeremail(newemail);
+        });
+
+
+         // Function to change customer password
+         async function changeCustomerAddress(newAddress) {
+            try {
+                
+                const response = await fetch(`/customeraddresschange/${newAddress}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to change address');
+                }
+
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const changeAddressBtn = document.getElementById('changeAddressBtn');
+        changeAddressBtn.addEventListener('click', () => {
+            const newAddress = document.getElementById('newAddress').value;
+            console.log(newAddress);
+            // Call the function to change the password
+            changeCustomerAddress(newAddress);
+        });
+
+        // Function to change customer password
+        async function changeCustomerphone(newphone) {
+            try {
+                const response = await fetch(`/customerphonenochange/${newphone}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to change phone');
+                }
+
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const changephoneBtn = document.getElementById('changephoneBtn');
+        changephoneBtn.addEventListener('click', () => {
+            const newphone = document.getElementById('newphone').value;
+            // Call the function to change the password
+            changeCustomerphone(newphone);
+        });
+        
+
+         // Function to change customer password
+         async function deletephnno() {
+            try {
+                const response = await fetch(`/customerphonedelete`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete phone no');
+                }
+
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const deletephn = document.getElementById('deletephn');
+        deletephn.addEventListener('click', () => {
+            // Call the function to change the password
+            deletephnno();
+        });
+
+
+        // Function to change customer password
+        async function addCustomerphone(addphone) {
+            try {
+                
+                const response = await fetch(`/customerphonenoinsert/${addphone}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to insert phone no');
+                }
+
+                fetchCustomerInfo();
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // Add event listener for the "Change Password" button
+        const addphoneBtn = document.getElementById('addphoneBtn');
+        addphoneBtn.addEventListener('click', () => {
+            const addphone= document.getElementById('addphone').value;
+            console.log(addphone);
+            // Call the function to change the password
+            addCustomerphone(addphone);
+        });
+    
+        const deactivated = document.getElementById('deactivated');
+    deactivated.addEventListener('click', () => {
+        
+        window.location.href = "deactivateaccount.html";
+    });
+
+
+    </script>
+</body>
+</html>

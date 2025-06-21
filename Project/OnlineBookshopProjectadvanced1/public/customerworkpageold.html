@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: rgb(222, 253, 111); /* Set the background color of the whole page to white */
+    }
+    
+    .top-bar {
+      background-color: green;
+      height: 70px;
+    }
+    
+    .content-wrapper {
+      display: flex;
+    }
+    
+    .sidebar {
+      width: 165px;
+      background-color: green; /* Set the background color of the left sidebar to green */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height:  3000px;
+      z-index: 1;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 20px; /* Add margin to the left of the content */
+      z-index: 0;
+    }
+    
+    .box-button {
+      width: 150px;
+      height: 50px;
+      margin: 10px;
+      background-color: #fa590e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #genreDropdown {
+      width: 150px;
+      margin-top: 10px;
+      display: none; /* Hide the dropdown initially */
+    }
+
+    .custom-dropdown {
+      display: flex;
+      align-items: center; /* Vertically align button and dropdown */
+      gap: 10px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+  }
+
+
+  #genreDropdown option:nth-child(odd) {
+    background-color: white;
+  }
+
+  #genreDropdown option:nth-child(even) {
+    background-color: #f0f0f0; /* Change this color as desired */
+  }
+  .book {
+    padding: 15px;
+    margin-top: 10px;
+    margin-left: 10px;
+    background-color: white;
+    margin-bottom: 50px; /* Adjust the value as needed */
+  }
+  .book img {
+    max-width: 100px; /* Set the maximum width */
+    max-height: 170px; /* Set the maximum height */
+    width: auto; /* Maintain aspect ratio */
+    height: auto; /* Maintain aspect ratio */
+  }
+  
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <input type="text" id="book_id" placeholder="input book_id" />
+    <input type="text" id="amount" placeholder="desired amount" />
+    <button onclick="processInput()">ADD TO CART</button>
+    <button onclick="showorder()">show ordered list</button>
+    <button onclick="commitorder()">commitorder</button>
+  </div>
+  <div class="content-wrapper">
+    <div class="sidebar">
+      <button class="box-button" id="searchByGenre">Search By Genre</button>
+      <select id="genreDropdown">
+        <option value="none">None</option>
+      </select>
+      <button class="box-button">Button 2</button>
+      <button class="box-button">Button 3</button>
+    </div>
+    <div class="content">
+      <!-- Your content goes here -->
+    </div>
+  </div>
+  <script src="customerworkpage.js">
+    
+  </script>
+</body>
+</html>

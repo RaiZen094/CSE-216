@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>publisher's book</title>
+    <style>
+        body{
+            background-color: rgb(247, 182, 5);
+        }
+        table{
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid black; 
+            background-color: rgb(217, 238, 134);
+        }
+
+        th,td{
+            border: 1px solid black; 
+            padding: 8px;
+            text-align: left;
+        }
+        tr:nth-child(odd) {
+            background-color: rgb(132, 188, 235); /* Change this color as desired */
+        }
+
+        tr:nth-child(even) {
+            background-color: #8eec81; /* Change this color as desired */
+        }
+        
+        #backButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="publisherName"></h1>
+    <button id="backButton">Back</button>
+    <p></p>
+    <p></p>
+    <table id="publisherbook_Table">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>ISBN</th>
+            <th>CATEGORIES</th>
+            <th>AUTHOR</th>
+            <th>PRICE</th>
+            <th>STOCK</th>
+        </tr>
+    </table>
+    <script src="mbookbypublisher.js"></script>
+</body>
+</html>

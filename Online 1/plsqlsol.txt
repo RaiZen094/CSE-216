@@ -1,0 +1,87 @@
+-----PL/SQL Online-----------
+-----A2---B2-----------------
+-----@skhakim----------------
+
+-----Question 1--------------
+
+
+-- write a PL/SQL function that takes student ID as input
+-- and returns TRUE if that student has attended courses of more than ten departments
+-- and FALSE otherwise
+
+
+CREATE OR REPLACE FUNCTION MORE_THAN_10 (S_ID IN NUMBER) RETURN BOOLEAN IS
+    N_DEPT NUMBER;
+BEGIN
+    SELECT COUNT(DISTINCT C2.DEPT_NAME) INTO N_DEPT
+    FROM TAKES INNER JOIN COURSE C2 on TAKES.COURSE_ID = C2.COURSE_ID
+    WHERE TO_NUMBER(ID) = S_ID;
+    IF N_DEPT > 10 THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    end if;
+end;
+
+-- Write a PL/SQL anonymous block that loops over, in descending order of the student ID,
+-- all students who have completed exactly 125 credits.
+-- For each student, using the function you have just written,
+-- print whether they have enrolled in more than ten departments or not.
+-- **You cannot declare any variable in the anonymous block.**
+
+BEGIN
+    FOR R IN (SELECT ID FROM STUDENT WHERE TOT_CRED = 125 ORDER BY to_number(ID) DESC)
+        LOOP
+            IF MORE_THAN_10(R.ID) THEN
+                DBMS_OUTPUT.PUT_LINE('Student ID: ' || R.ID || ' has enrolled in more than ten departments.');
+            ELSE
+                DBMS_OUTPUT.PUT_LINE('Student ID: ' || R.ID || ' has not enrolled in more than ten departments.');
+            end if;
+        end loop;
+end;
+
+
+-----Question 2--------------
+
+
+-- Write a PL/SQL stored procedure that takes in Student ID as input and emits the CGPA as output.
+
+
+CREATE OR REPLACE FUNCTION GRADE_TO_POINT(GRADE IN VARCHAR2) RETURN FLOAT IS
+    INVALID_LETTER_GRADE EXCEPTION;
+BEGIN
+    -- DBMS_OUTPUT.PUT_LINE(GRADE);
+    IF GRADE = 'A+' THEN
+        RETURN 4.00;
+    ELSIF GRADE = 'A ' THEN
+        RETURN 3.75;
+    ELSIF GRADE = 'A-' THEN
+        RETURN 3.50;
+    ELSIF GRADE = 'B+' THEN
+        RETURN 3.25;
+    ELSIF GRADE = 'B ' THEN
+        RETURN 3.00;
+    ELSIF GRADE = 'B-' THEN
+        RETURN 2.75;
+    ELSIF GRADE = 'C+' THEN
+        RETURN 2.50;
+    ELSIF GRADE = 'C ' THEN
+        RETURN 2.25;
+    ELSIF GRADE = 'C-' THEN
+        RETURN 2.15;
+    end if;
+    RAISE INVALID_LETTER_GRADE;
+end;
+
+
+CREATE OR REPLACE FUNCTION FIND_CGPA(S_ID IN NUMBER) RETURN FLOAT IS
+    CGPA FLOAT;
+BEGIN
+    SELECT ROUND(SUM(GP) / SUM(CREDITS), 4) INTO CGPA
+    FROM
+        (SELECT MAX(GRADE_TO_POINT(GRADE) * CREDITS) AS GP, CREDITS
+         FROM TAKES INNER JOIN COURSE C2 on TAKES.COURSE_ID = C2.COURSE_ID WHERE ID = S_ID
+         GROUP BY ID, C2.COURSE_ID, CREDITS);
+    -- DBMS_OUTPUT.PUT_LINE('CGPA OF ID ' || S_ID || ' IS ' || CGPA);
+    RETURN CGPA;
+end;

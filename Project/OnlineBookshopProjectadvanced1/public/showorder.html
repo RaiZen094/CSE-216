@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order List</title>
+</head>
+<body>
+    <div class="div1"></div>
+    <div class="showorder" id="showorder">
+        <!-- The order list will be displayed here -->
+    </div>
+    <button id="backButton">Back</button>
+    <script>
+        function displayCIDAndOrders() {
+            // Retrieve the customerOrders array from localStorage
+            const customerOrdersJSON = localStorage.getItem('customerOrders');
+            const customerOrders = JSON.parse(customerOrdersJSON);
+          
+            // Display the customerOrders as needed
+            const presdiv = document.getElementById('showorder');
+            console.log('Customer Orders:', customerOrders);
+          
+            // Check if there are existing orders for the current customer (cid)
+            const cid = localStorage.getItem('cid');
+            if (customerOrders && customerOrders[cid]) {
+              const existingOrders = customerOrders[cid];
+              const orderListHTML = generateOrderListHTML(existingOrders);
+              presdiv.innerHTML = orderListHTML;
+            } else {
+              presdiv.innerHTML = '<p>No orders found.</p>';
+            }
+          }
+          
+          // Generate HTML for the order list
+          function generateOrderListHTML(orders) {
+            let orderListHTML = '<h2>Order List</h2>';
+            orderListHTML += '<ul>';
+          
+            orders.forEach(order => {
+              const [bookId, orderedAmount] = order;
+              orderListHTML += `<li>Book ID: ${bookId}, Ordered Copies: ${orderedAmount}</li>`;
+            });
+          
+            orderListHTML += '</ul>';
+            return orderListHTML;
+          }
+          const backButton= document.getElementById("backButton");
+          backButton.addEventListener("click", () => {
+              window.location.href = "customerworkpage.html";
+          });
+          // Call the function after the page has fully loaded
+          window.addEventListener('load', displayCIDAndOrders);
+    </script>
+</body>
+</html>

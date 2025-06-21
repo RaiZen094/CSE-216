@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Define the styles for the three div elements */
+        .container {
+            display: flex;
+            flex-direction: row; /* Change to row to make them vertical */
+            height: 100vh; /* 100% viewport height to make it fill the entire screen */
+        }
+
+        .div1 {
+            background-color: #c8ecc0; /* Reddish color */
+            padding: 10px;
+            max-height: 100%;
+            overflow-y: auto;
+            flex: 1; /* Make it take up 1/6 of the available width */
+        }
+
+        .div2 {
+            background-color: #e3fd82; /* Greenish color */
+            overflow-y: auto;
+            max-height: 100%;
+            flex: 1.2; /* Slightly wider than div1 and div3 */
+        }
+
+        .div3 {
+            background-color: #c8ecc0; /* Reddish color */
+            padding: 10px;
+            max-height: 100%;
+            overflow-y: auto;
+            flex: 1; /* Make it take up 1/6 of the available width */
+        }
+
+        .book-box {
+            border: 1px solid #000; /* Add a border to each book box */
+            margin-bottom: 10px; /* Add some spacing between book boxes */
+            padding: 10px; /* Add padding to the book boxes */
+        }
+
+        .book-image {
+            max-width: 300px;
+            max-height: 400px;
+            display: block;
+        }
+
+        /* Add border to the table */
+        table {
+            border: 1px solid #000;
+            border-collapse: collapse;
+            width: 100%; /* Make the table take up the entire width of div2 */
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="div1" id="bookContainer">
+            <h1>Out Of Stock</h1>
+        </div>
+        <div class="div2"></div>
+        <div class="div3" id="bookContainers">
+            <h1>Discounted Books</h1>
+        </div>
+    </div>
+
+    <script>
+        async function fetchunavailableBookInfo(){
+            try {
+                const response = await fetch('/unavailablebooks/'); 
+                const data = await response.json(); 
+                console.log(data);
+                const bookContainer = document.getElementById('bookContainer');
+
+                data.forEach(book => {
+                    const bookBox = document.createElement('div');
+                    bookBox.classList.add('book-box'); 
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'text-content';
+
+                    textDiv.innerHTML = `
+                        <h2>${book.TITLE}</h2>
+                        <p>Book id: ${book.ID}<P>
+                        <p><b>Author: ${book.AUTHOR}</b></p>
+                        <p>ISBN: ${book.ISBN}</p>
+                        <p>Publisher: ${book.PUBLISHER}</p>
+                      
+                    `;
+
+                    const bookImage = document.createElement('img');
+                    bookImage.className = 'book-image';
+
+                    // Set the source of the book image (replace 'book_image_path' with the actual image path)
+                    bookImage.src = `../IMAGE/${book.ID}.jpg`;
+
+                    // Set the size of the book image
+                    bookImage.style.width = '90px'; // You can adjust the width as needed
+                    bookImage.style.height = '140px'; // You can adjust the height as needed
+                    bookImage.alt = `Book Image for Book ID: ${book.ID}`;
+                    bookBox.appendChild(bookImage);
+                    bookBox.appendChild(textDiv);
+                    // Append the book box to the book container
+                    bookContainer.appendChild(bookBox);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        fetchunavailableBookInfo();
+
+
+        async function fetchdiscountedBookInfo(){
+            try {
+                console.log("Hello");
+                const response = await fetch('/discountedbooks/'); 
+                const data = await response.json(); 
+                console.log(data);
+                const bookContainer = document.getElementById('bookContainers');
+
+                data.forEach(book => {
+                    const bookBox = document.createElement('div');
+                    bookBox.classList.add('book-box'); 
+                    const textDiv1 = document.createElement('div');
+                    textDiv1.className = 'text-content';
+
+                    textDiv1.innerHTML = `
+                        <h2>${book.TITLE}</h2>
+                        <p>Book id: ${book.ID}<P>
+                        <p><b>Author: ${book.AUTHOR}</b></p>
+                        <p>ISBN: ${book.ISBN}</p>
+                        <p>Publisher: ${book.PUBLISHER}</p>
+                        <p><b>Discount: ${book.DISCOUNT}</b></p>
+                    `;
+
+                    const bookImage = document.createElement('img');
+                    bookImage.className = 'book-image';
+
+                    // Set the source of the book image (replace 'book_image_path' with the actual image path)
+                    bookImage.src = `../IMAGE/${book.ID}.jpg`;
+
+                    // Set the size of the book image
+                    bookImage.style.width = '90px'; // You can adjust the width as needed
+                    bookImage.style.height = '140px'; // You can adjust the height as needed
+                    bookImage.alt = `Book Image for Book ID: ${book.ID}`;
+                    bookBox.appendChild(bookImage);
+                    bookBox.appendChild(textDiv1);
+                    // Append the book box to the book container
+                    bookContainer.appendChild(bookBox);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchdiscountedBookInfo();
+
+        async function fetchnewCustomers() {
+            try {
+                const response = await fetch('/newcustomers/');
+                if (response.ok) {
+                    const data = await response.json();
+                    const div2 = document.querySelector('.div2');
+
+                    const table = document.createElement('table');
+                    table.innerHTML = `
+                        <tr>
+                            <th>Customer_Id</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Sign_In_Date</th>
+                        </tr>
+                    `;
+
+                    data.forEach(order => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${order.CUSTOMER_ID}</td>
+                            <td>${order.USERNAME}</td>
+                            <td>${order.EMAIL}</td>
+                            <td>${order.ADDRESS}</td>
+                            <td>${order.SIGN_IN_DATE}</td>
+                        `;
+                        table.appendChild(row);
+                    });
+
+                    div2.innerHTML = '';
+                    div2.innerHTML = `<h2>New Customer</h2>`;
+                    div2.appendChild(table);
+                } else {
+                    console.error('Failed to fetch data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchnewCustomers();
+    </script>
+</body>
+</html>

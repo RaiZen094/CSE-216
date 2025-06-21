@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: rgb(222, 253, 111);
+    }
+    
+    .top-bar {
+      background-color: green;
+      height: 100px;
+      display: flex;
+      justify-content: space-between; /* Align items horizontally with space in-between */
+      align-items: center;
+      padding: 0 20px; /* Add padding to create space around the "Back" button */
+    }
+    
+    .content-wrapper {
+      display: flex;
+    }
+    
+    .sidebar {
+      width: 165px;
+      background-color: green;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 3200px;
+      z-index: 1;
+    }
+    
+    .content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 20px;
+      z-index: 0;
+    }
+    
+    .box-button {
+      width: 150px;
+      height: 50px;
+      margin: 10px;
+      background-color: #fa590e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease; /* Add a smooth transition */
+    }
+
+    .box-button:hover {
+      background-color: #ff710e; /* Change background color on hover */
+    }
+
+    /* Style the "Experienced Employee" button */
+    #experiencedemployee {
+      background-color: #fa590e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 150px;
+      height: 50px;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    #experiencedemployee:hover {
+      background-color: #ff710e;
+    }
+
+    #updatesalary {
+      background-color: #fa590e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 150px;
+      height: 50px;
+      margin: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    #updatesalary:hover {
+      background-color: #ff710e;
+    }
+
+    /* Style for the input fields */
+    .input-field {
+      margin: 10px;
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    /* Style for the "Submit" button inside the form */
+    #submitUpdate {
+      background-color: #fa590e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    #submitUpdate:hover {
+      background-color: #ff710e;
+    }
+    #updateSalaryForm {
+      display: none; /* Hide the form by default */
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button id="backButton">Back</button>
+  </div>
+  <div class="content-wrapper">
+    <div class="sidebar">
+      <button class="box-button" id="showemployeeinfo">Show All</button>
+      <button class="box-button" id="maximumsalary">Maximum Salary</button>
+      <button class="box-button" id="minimumsalary">Minimum Salary</button>
+      <button class="box-button" id="experiencedemployee">Experienced Employee</button>
+      <button class="box-button" id="updatesalary">Update Salary</button>
+    </div>
+    <div class="content">
+      <!-- Your content goes here -->
+      <form id="updateSalaryForm">
+        <label for="employeeId">Employee ID:</label>
+        <input type="text" id="employeeId" class="input-field" placeholder="Employee ID">
+        <label for="newSalary">New Salary:</label>
+        <input type="text" id="newSalary" class="input-field" placeholder="New Salary">
+        <button id="submitUpdate" class="box-button">Submit</button>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      const showEmployeeInfoButton = document.getElementById("showemployeeinfo");
+      const contentDiv = document.querySelector(".content");
+  
+      showEmployeeInfoButton.addEventListener("click", async function () {
+        try {
+          const response = await fetch("/employeeinfo/");
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data);
+            contentDiv.innerHTML = "";
+            data.forEach(function (employee) {
+              const employeeInfoDiv = document.createElement("div");
+              employeeInfoDiv.classList.add("employee-info");
+  
+              // Customize this part to format the data as you want
+              employeeInfoDiv.innerHTML = `
+                <h2>Employee Name:${employee.NAME}</h2>
+                <p>Employee ID: ${employee.EMPLOYEE_ID}</p>
+                <p>Salary: ${employee.SALARY} tk</p>
+                <p>Phone No: ${employee.PHONE_NO}</p>
+                <p>Email: ${employee.EMAIL}</P>
+                <P>Hire Date:${employee.HIRE_DATE}</p>
+                <P></P>
+                <hr>
+                <hr>
+                <hr>
+                <hr>
+                <hr>
+              `;
+  
+              // Append the employee info to the contentDiv
+              contentDiv.appendChild(employeeInfoDiv);
+            });
+          } else {
+            console.error("Error fetching employee data:", response.statusText);
+          }
+        } catch (error) {
+          console.error("Error fetching employee data:", error);
+        }
+      });
+
+      const showexperiencedemployeebutton = document.getElementById('experiencedemployee');
+
+showexperiencedemployeebutton.addEventListener("click", async function () {
+  try {
+    // Step 1: Fetch the experienced employee ID
+    const response = await fetch("/experiencedemployee/");
+    if (response.ok) {
+      const employeeIds = await response.json();
+
+      // Step 2: Fetch additional info for each experienced employee
+      for (const employeeId of employeeIds) {
+        console.log(employeeId.EMPLOYEE_ID+ " "+typeof employeeId.EMPLOYEE_ID);
+        const employeeResponse = await fetch(`/employee/${employeeId.EMPLOYEE_ID}`);
+        if (employeeResponse.ok) {
+          contentDiv.innerHTML = "";
+          const employeeData = await employeeResponse.json();
+          displayEmployeeInfo(employeeData);
+        } else {
+          console.error("Error fetching employee data:", employeeResponse.statusText);
+        }
+      }
+    } else {
+      console.error("Error fetching experienced employee IDs:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+});
+
+function displayEmployeeInfo(employeeData) {
+  //const contentDiv = document.getElementById('content');
+
+  // Create a container div for each employee's info
+  const employeeInfoDiv = document.createElement("div");
+  employeeInfoDiv.classList.add("employee-info");
+  console.log(employeeData[0].NAME+" "+employeeData[0].EMPLOYEE_ID+" "+employeeData[0].PHONE_NO+" "+employeeData[0].EMAIL+" "+employeeData[0].HIRE_DATE);
+  // Customize this part to format the data as you want
+  employeeInfoDiv.innerHTML = `
+    <h2>Employee Name:${employeeData[0].NAME}</h2>
+    <p>Employee ID: ${employeeData[0].EMPLOYEE_ID}</p>
+    <p>Phone No: ${employeeData[0].PHONE_NO}</p>
+    <p>Email: ${employeeData[0].EMAIL}</p>
+    <p>Hire Date:${employeeData[0].HIRE_DATE}</p>
+    <p></p>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+  `;
+
+  // Append the employee info to the contentDiv
+  contentDiv.appendChild(employeeInfoDiv);
+}
+
+
+      const maximumSalaryButton = document.getElementById("maximumsalary");
+
+      maximumSalaryButton.addEventListener("click", async function () {
+        try {
+          const response = await fetch("/maxsalary/");
+          if (response.ok) {
+            const data = await response.json();
+
+            // Clear the existing content
+            contentDiv.innerHTML = "";
+
+            // Check if there is data to display
+            if (data.length > 0) {
+              const maxSalary = data[0].SALARY;
+
+              const maxSalaryDiv = document.createElement("div");
+              maxSalaryDiv.classList.add("max-salary-info");
+
+              // Customize this part to format the data as you want
+              maxSalaryDiv.innerHTML = `
+                <h2>Maximum Salary</h2>
+                <p><h1> ${maxSalary}</h1></p>
+              `;
+
+              // Append the max salary info to the contentDiv
+              contentDiv.appendChild(maxSalaryDiv);
+            } else {
+              // Handle the case when there is no data
+              contentDiv.innerHTML = "<p>No data available</p>";
+            }
+          } else {
+            console.error("Error fetching maximum salary data:", response.statusText);
+          }
+        }catch (error){
+          console.error("Error fetching maximum salary data:", error);
+        }
+      });
+
+      const minimumSalaryButton = document.getElementById("minimumsalary");
+
+      minimumSalaryButton.addEventListener("click", async function () {
+        try {
+          const response = await fetch("/minsalary/");
+          if (response.ok) {
+            const data = await response.json();
+
+            // Clear the existing content
+            contentDiv.innerHTML = "";
+
+            // Check if there is data to display
+            if (data.length > 0) {
+              const minSalary = data[0].SALARY;
+
+              const minSalaryDiv = document.createElement("div");
+              minSalaryDiv.classList.add("min-salary-info");
+
+              // Customize this part to format the data as you want
+              minSalaryDiv.innerHTML = `
+                <h2>Minimum Salary</h2>
+                <p><h1> ${minSalary}</h1></p>
+              `;
+
+              // Append the max salary info to the contentDiv
+              contentDiv.appendChild(minSalaryDiv);
+            } else {
+              // Handle the case when there is no data
+              contentDiv.innerHTML = "<p>No data available</p>";
+            }
+          } else {
+            console.error("Error fetching maximum salary data:", response.statusText);
+          }
+        }catch (error) {
+          console.error("Error fetching maximum salary data:", error);
+        }
+      });
+      const backButton= document.getElementById("backButton");
+          backButton.addEventListener("click", () => {
+              window.location.href = "managerworkpage.html";
+          });
+
+          const updateSalaryButton = document.getElementById("updatesalary");
+          const updateSalaryForm = document.getElementById("updateSalaryForm");
+    
+          updateSalaryButton.addEventListener("click", function () {
+            console.log('Hello there');
+            //contentDiv.innerHTML = "";
+            updateSalaryForm.style.display = "block";
+          });
+    
+          // Handle the form submission
+          const submitUpdateButton = document.getElementById("submitUpdate");
+          const employeeIdInput = document.getElementById("employeeId");
+          const newSalaryInput = document.getElementById("newSalary");
+    
+          submitUpdateButton.addEventListener("click", async function (event) {
+            event.preventDefault();
+    
+            const employeeId = employeeIdInput.value;
+            const newSalary = newSalaryInput.value;
+    
+            try {
+              const response = await fetch(`/updatesalary/${employeeId}/salary`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ salary: newSalary }),
+              });
+    
+              if (response.ok) {
+                // Salary updated successfully, you can provide feedback to the user if needed
+                console.log("Salary updated successfully");
+              } else {
+                console.error("Error updating salary:", response.statusText);
+              }
+            } catch (error) {
+              console.error("Error updating salary:", error);
+            }
+    
+            // Clear the form and hide it
+            employeeIdInput.value = "";
+            newSalaryInput.value = "";
+            updateSalaryForm.style.display = "none";
+          });
+
+    });
+  </script>
+  
+</body>
+</html>

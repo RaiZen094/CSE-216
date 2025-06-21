@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Username and Password Exists</title>
+    <style>
+        body {
+            background-color: #cecbcb;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            text-align:center;
+            padding:20px;
+            background-color: #fa2727;
+            border-radius: 10px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333333;
+            padding-bottom: 10px;
+        }
+        
+        .oval-button {
+            background-color: #4CAF50;
+            color: #ffffff;
+            border: none;
+            border-radius: 30px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .oval-button:hover{
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>This Username already exists!</h1>
+        <button class="oval-button" type="button" onclick="processInput()">BACK</button>
+    </div>
+    <script src="duplicatecustomer.js"></script>
+</body>
+</html>

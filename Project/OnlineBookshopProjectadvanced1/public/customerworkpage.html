@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css"> <!-- Link to an external CSS file for better organization -->
+  <style>
+    /* Inline CSS for basic styles (can be moved to styles.css) */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    header {
+      background-color: #007bff;
+      color: #fff;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #searchInput {
+      width: 300px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #searchBy {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #genreDropdown {
+      padding: 10px;
+      display: none;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #searchButton {
+      padding: 10px 20px;
+      background-color: #0056b3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .book-card {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-image {
+      max-width: 500px;
+      max-height: 200px;
+      width: auto;
+      height: auto;
+    }
+  </style>
+  <title>Bookshop Homepage</title>
+</head>
+<body>
+  <header>
+    <!-- Add a cart button at the top right corner -->
+    <div>
+      <!-- Cart button -->
+      <a href="cart.html" style="text-decoration: none;">
+        <button style="background-color: #0056b3; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px;">
+          Cart
+        </button>
+      </a>
+      <!-- User Info button -->
+      <a href="personalinfo.html" style="text-decoration: none;">
+        <button style="background-color: #0056b3; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px;">
+          User Info
+        </button>
+      </a>
+      <!-- Order History button -->
+      <a href="orderhistory.html" style="text-decoration: none;">
+        <button style="background-color: #0056b3; color: #fff; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px;">
+          Order History
+        </button>
+      </a>
+    </div>
+    <!-- Search container -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search by name">
+      <select id="searchBy">
+        <option value="name">Search by Name</option>
+        <option value="author">Search by Author</option>
+        <option value="publication">Search by Publication</option>
+        <option value="genre">Search by Genre</option>
+      </select>
+      <select id="genreDropdown" style="display: none;">
+        <option value="all">All Genres</option>
+        <option value="Comic">Comic</option>
+        <option value="Classic">Classic</option>
+        <option value="science_fiction">Science Fiction</option>
+        <!-- Add more genres here -->
+      </select>
+      <button id="searchButton">Search</button>
+    </div>
+  </header>
+  
+  <main>
+    <section class="book-grid" id="bookGrid">
+      <!-- Books will be dynamically added here -->
+    </section>
+  </main>
+
+  <script>
+    // JavaScript code
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchButton = document.getElementById('searchButton');
+      const searchInput = document.getElementById('searchInput');
+      const searchBy = document.getElementById('searchBy');
+      const genreDropdown = document.getElementById('genreDropdown');
+      const bookGrid = document.getElementById('bookGrid');
+
+      // Simulated book data fetch (replace with actual API endpoint)
+      async function fetchBooks() {
+        try {
+          const response = await fetch("/books"); // Replace with your API endpoint
+          const data = await response.json();
+          return data; // Assuming the API response has a 'books' property
+        } catch (error) {
+          console.error('Error fetching books:', error);
+          return []; // Return an empty array if fetch fails
+        }
+      }
+
+      // Display all books initially
+      fetchBooks().then(books => {
+        displayBooks(books);
+      });
+
+      searchButton.addEventListener('click', () => {
+        const searchTerm = searchInput.value;
+        const selectedOption = searchBy.value;
+        let selectedGenres = [];
+
+        if (selectedOption === 'genre') {
+          selectedGenres = Array.from(genreDropdown.selectedOptions).map(option => option.value);
+        }
+
+        fetchBooks().then(books => {
+          const filteredBooks = filterBooks(books, searchTerm, selectedOption, selectedGenres);
+          displayBooks(filteredBooks);
+        });
+      });
+
+      function filterBooks(booksArray, searchTerm, searchOption, genres) {
+        return booksArray.filter(book => {
+          const searchTermMatches = book.TITLE.toLowerCase().includes(searchTerm.toLowerCase());
+          const genreMatches = genres.includes('all') || genres.includes(book.CATEGORIES);
+          let searchFieldMatches = false;
+
+          switch (searchOption) {
+            case 'name':
+              searchFieldMatches = searchTermMatches;
+              break;
+            case 'author':
+              searchFieldMatches = book.AUTHOR.toLowerCase().includes(searchTerm.toLowerCase());
+              break;
+            case 'publication':
+              searchFieldMatches = book.PUBLICATION.toLowerCase().includes(searchTerm.toLowerCase());
+              break;
+            case 'genre':
+              searchFieldMatches = genreMatches;
+              break;
+            default:
+              break;
+          }
+
+          return searchFieldMatches;
+        });
+      }
+
+      function displayBooks(booksArray) {
+        bookGrid.innerHTML = '';
+
+        if (booksArray.length === 0) {
+          const noResultsElement = document.createElement('div');
+          noResultsElement.className = 'book-card';
+          noResultsElement.textContent = 'No results found.';
+          bookGrid.appendChild(noResultsElement);
+        } else {
+          booksArray.forEach(book => {
+            const bookElement = document.createElement('div');
+            bookElement.className = 'book-card';
+
+            // Create an image element for each book
+            const bookImage = document.createElement('img');
+            bookImage.className = 'book-image';
+            bookImage.src = `/Image/${book.ID}.jpg`; // Replace with the actual path to your book images
+            bookImage.alt = book.TITLE;
+            bookElement.appendChild(bookImage);
+
+            // Create a button for the book title
+            const bookTitleButton = document.createElement('button');
+            bookTitleButton.textContent = book.TITLE;
+            bookTitleButton.addEventListener('click', () => {
+              // Redirect to the book info page based on book ID
+              window.location.href = `book-info.html?bookId=${book.ID}`;
+            });
+            bookElement.appendChild(bookTitleButton);
+
+            bookGrid.appendChild(bookElement);
+          });
+        }
+      }
+
+      // Show/hide the genre select dropdown based on the selected search option
+      searchBy.addEventListener('change', () => {
+        if (searchBy.value === 'genre') {
+          genreDropdown.style.display = 'block';
+        } else {
+          genreDropdown.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

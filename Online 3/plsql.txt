@@ -1,0 +1,70 @@
+1a
+CREATE OR REPLACE FUNCTION Has_More_Than_Ten_Dept(sid IN STUDENT.ID%TYPE)
+RETURN BOOLEAN
+IS
+    dept_count INTEGER;
+BEGIN
+    SELECT COUNT(DISTINCT c.dept_name)
+    INTO dept_count
+    FROM TAKES t
+    JOIN COURSE c ON t.course_id = c.course_id
+    WHERE t.ID = sid;
+
+    RETURN dept_count > 10;
+END;
+/
+CREATE OR REPLACE PROCEDURE Get_CGPA(sid IN STUDENT.ID%TYPE, cgpa OUT NUMBER)
+IS
+    total_points NUMBER := 0;
+    total_credits NUMBER := 0;
+BEGIN
+    FOR rec IN (
+        SELECT t.course_id, MAX(Get_Point_Grade(t.grade)) best_point, c.credits
+        FROM TAKES t JOIN COURSE c ON t.course_id = c.course_id
+        WHERE t.ID = sid
+        GROUP BY t.course_id, c.credits
+    ) LOOP
+        total_points := total_points + rec.best_point * rec.credits;
+        total_credits := total_credits + rec.credits;
+    END LOOP;
+
+    IF total_credits > 0 THEN
+        cgpa := total_points / total_credits;
+    ELSE
+        cgpa := 0;
+    END IF;
+END;
+/
+
+
+1b
+BEGIN
+    FOR student_rec IN (
+        SELECT ID FROM STUDENT
+        WHERE tot_cred = 125
+        ORDER BY ID DESC
+    )
+    LOOP
+        IF Has_More_Than_Ten_Dept(student_rec.ID) THEN
+            DBMS_OUTPUT.PUT_LINE('Student ID: ' || student_rec.ID ||
+            ' has enrolled in more than ten departments.');
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Student ID: ' || student_rec.ID ||
+            ' has not enrolled in more than ten departments.');
+        END IF;
+    END LOOP;
+END;
+/
+2
+CREATE OR REPLACE FUNCTION Get_Point_Grade(letter_grade IN VARCHAR2)
+RETURN NUMBER IS
+BEGIN
+    CASE letter_grade
+        WHEN 'A+' THEN RETURN 4.00; WHEN 'A' THEN RETURN 3.75;
+        WHEN 'A-' THEN RETURN 3.50; WHEN 'B+' THEN RETURN 3.25;
+        WHEN 'B'  THEN RETURN 3.00; WHEN 'B-' THEN RETURN 2.75;
+        WHEN 'C+' THEN RETURN 2.50; WHEN 'C' THEN RETURN 2.25;
+        WHEN 'C-' THEN RETURN 2.15; ELSE RETURN 0;
+    END CASE;
+END;
+/

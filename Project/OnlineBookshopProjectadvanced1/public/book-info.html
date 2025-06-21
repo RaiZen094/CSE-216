@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Information</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
+    }
+    
+    header {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      font-size: 24px;
+    }
+    
+    h2 {
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    
+    .book-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+    }
+    
+    .book-info img {
+      max-width: 300px;
+      max-height: 300px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+    
+    .quantity-control button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    
+    #quantity {
+      margin: 0 10px;
+      font-size: 18px;
+    }
+    
+    #addToCart {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    
+    #backButton {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    
+    .reviews {
+      margin-top: 40px;
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+    
+    .reviews h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333; /* Darken the heading text color */
+    }
+    
+    .reviews ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .reviews li {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    
+    .reviews div {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .reviews div span {
+      font-weight: bold;
+      margin-right: 10px;
+      font-size: 18px;
+    }
+    
+    .reviews p {
+      margin: 0;
+      font-size: 16px;
+      color: #666; /* Slightly darken the review text color */
+    }
+
+    /* Style for the "No reviews yet" message */
+    .no-reviews {
+      color: #666;
+      font-size: 18px;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Book Information</h1>
+  </header>
+  <div class="container">
+     <div class="book-info">
+      <div>
+        <h2>Book Title:</h2>
+        <p id="bookTitle">Loading...</p>
+        <h2>Author:</h2>
+        <p id="bookAuthor">Loading...</p>
+        <h2>Publication:</h2>
+        <p id="bookPublication">Loading...</p>
+        <h2>Category:</h2>
+        <p id="bookCategory">Loading...</p>
+      </div>
+      <img id="bookImage" src="" alt="Book Cover">
+    </div>
+    <div class="quantity-control">
+      <h2>Quantity:</h2>
+      <button id="decrement">-</button>
+      <span id="quantity">1</span>
+      <button id="increment">+</button>
+    </div>
+    <button id="addToCart">Add to Cart</button>
+    <button id="backButton">Back</button>
+    <!-- Your existing book information section -->
+  </div>
+  <!-- Customer Reviews Section -->
+  <div class="reviews">
+    <h2>Customer Reviews</h2>
+    <ul id="reviewList">
+      <!-- Reviews will be added dynamically here -->
+    </ul>
+    <!-- Display a message when there are no reviews -->
+    <p class="no-reviews" id="noReviewsMessage">No reviews yet.</p>
+  </div>
+
+  <script>
+    // Your JavaScript code here (as previously provided)
+const customername = localStorage.getItem("customername");
+let customerOrders = JSON.parse(localStorage.getItem('customerOrders')) || {};
+
+let cid;
+let bid;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Extract the book ID from the URL query parameter
+  const queryParams = new URLSearchParams(window.location.search);
+  const bookId = queryParams.get('bookId');
+  bid = bookId;
+
+  // Function to fetch book data by ID
+  async function fetchBookById(bookId) {
+    try {
+      const response = await fetch(`/book/${bookId}`);
+      const data = await response.json();
+      return data; // Assuming the API response contains book information
+    } catch (error) {
+      console.error('Error fetching book:', error);
+      return null;
+    }
+  }
+
+  // Load and display book information
+  fetchBookById(bookId).then(books => {
+    if (books && books.length > 0) {
+      const book = books[0];  // Assuming you want the first book in the array
+      displayBook(book);
+    } else {
+      const bookInfoDiv = document.getElementById('bookInfo');
+      const noBookFound = document.createElement('p');
+      noBookFound.textContent = 'Book not found.';
+      bookInfoDiv.appendChild(noBookFound);
+    }
+  });
+
+  // Quantity handling
+  const decrementButton = document.getElementById('decrement');
+  const incrementButton = document.getElementById('increment');
+  const quantitySpan = document.getElementById('quantity');
+  let quantity = 1; // Initial quantity
+
+  decrementButton.addEventListener('click', () => {
+    if (quantity > 1) {
+      quantity--;
+      quantitySpan.textContent = quantity;
+    }
+  });
+
+  incrementButton.addEventListener('click', () => {
+    quantity++;
+    quantitySpan.textContent = quantity;
+  });
+
+  function addOrder(customerId, bookId, orderedAmount) {
+    if (!customerOrders[customerId]) {
+      customerOrders[customerId] = []; // Create an empty array for the customer's orders if it doesn't exist
+    }
+    customerOrders[customerId].push([bookId, orderedAmount]); // Add the order as a pair [bookId, orderedAmount]
+    localStorage.setItem('customerOrders', JSON.stringify(customerOrders));
+    console.log(customerOrders);
+  }
+
+  function clearOrderlist(customerId) {
+    customerOrders[customerId] = [];
+    localStorage.setItem('customerOrders', JSON.stringify(customerOrders));
+  }
+
+  // Add to Cart
+  const addToCartButton = document.getElementById('addToCart');
+  addToCartButton.addEventListener('click', async () => {
+    try {
+      // Fetch the customer ID (cid) based on the customer name (cname)
+      const response = await fetch(`/customer/${customername}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        const customerid = data.customerId;
+        cid = customerid;
+
+        // Create a new order object
+        const newOrder = {
+          bookId: bid,
+          orderedAmount: quantity,
+        };
+
+        // Retrieve existing customer orders or create an empty object
+
+        // Check if the customer already has orders
+        if (!customerOrders[customerid]) {
+          customerOrders[customerid] = [];
+        }
+
+        // Push the new order to the customer's orders array
+        customerOrders[customerid].push(newOrder);
+
+        // Store the updated orders object in localStorage
+        localStorage.setItem('customerOrders', JSON.stringify(customerOrders));
+        localStorage.setItem('cid', cid);
+        // Optionally, you can print the updated orders
+        console.log(customerOrders);
+
+        // Redirect to the cart page (replace 'cart.html' with your actual cart page URL)
+        //window.location.href = 'cart.html';
+      } else {
+        console.log('Error:', response.status);
+        throw new Error('Failed to fetch customer ID');
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  });
+
+  function displayBook(book) {
+    const bookTitle = document.getElementById('bookTitle');
+    const bookAuthor = document.getElementById('bookAuthor');
+    const bookPublication = document.getElementById('bookPublication');
+    const bookCategory = document.getElementById('bookCategory');
+    const bookImage = document.getElementById('bookImage');
+
+    if (book) {
+      bookTitle.textContent = `Title: ${book.TITLE}`;
+      bookAuthor.textContent = `Author: ${book.AUTHOR}`;
+      bookPublication.textContent = `Publication : ${book.PUBLISHER}`;
+      bookCategory.textContent = `Category: ${book.CATEGORIES}`;
+      bookImage.src = `/Image/${book.ID}.jpg`; // Update the image source
+      bookImage.alt = book.TITLE;
+    } else {
+      const bookInfoDiv = document.getElementById('bookInfo');
+      const noBookFound = document.createElement('p');
+      noBookFound.textContent = 'Book not found.';
+      bookInfoDiv.appendChild(noBookFound);
+    }
+  }
+
+  // Fetch and display reviews
+  async function fetchReviews(bookId) {
+    try {
+      const response = await fetch(`/feedback/${bookId}`);
+      const data = await response.json();
+      return data; // Assuming the API response contains reviews
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      return [];
+    }
+  }
+
+  function displayReviews(reviews) {
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = ''; // Clear existing reviews
+
+  if (reviews.length === 0) {
+    const noReviews = document.createElement('p');
+    noReviews.textContent = 'No reviews yet.';
+    reviewList.appendChild(noReviews);
+  } else {
+    reviews.forEach(review => {
+      const listItem = document.createElement('li');
+      
+      // Create a div for customer ID
+      const customerInfoDiv = document.createElement('div');
+      customerInfoDiv.textContent = `Customer ID: ${review.CUSTOMER_ID}`;
+      
+      // Create a div for rating
+      const ratingDiv = document.createElement('div');
+      ratingDiv.textContent = `Rating: ${review.RATING}`;
+      
+      const comment = document.createElement('p');
+      comment.textContent = review.COMMENT1;
+      
+      // Append the customer ID, rating, and comment to the list item
+      listItem.appendChild(customerInfoDiv);
+      listItem.appendChild(ratingDiv);
+      listItem.appendChild(comment);
+      
+      // Append the list item to the review list
+      reviewList.appendChild(listItem);
+    });
+  }
+}
+
+// Call the fetchReviews function when the page loads
+fetchReviews(bid).then(reviews => {
+  displayReviews(reviews);
+});
+
+  const backButton = document.getElementById("backButton");
+  backButton.addEventListener("click", () => {
+    window.location.href = "customerworkpage.html";
+  });
+});
+
+  </script>
+</body>
+</html>

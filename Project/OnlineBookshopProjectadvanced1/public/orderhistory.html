@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <style>
+        /* Reset some default styles and apply a base font */
+        body, h1, h2, p, table {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #fff; /* White background */
+            color: #333; /* Dark text */
+        }
+
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #007BFF;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+        }
+
+        .content {
+            flex: 1;
+            background-color: #f2f2f2; /* Lighter content background */
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #555; /* Darker border */
+            text-align: left;
+        }
+
+        table th {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        #orderDetails {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end; /* Align order details to the right */
+        }
+
+        #orderIdInput {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #bookInfoContainer {
+            margin-top: 20px;
+            margin-left: 20px; /* Add some margin to move it to the right */
+        }
+
+        /* Styles for the rating and comment section */
+        .rating-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #666; /* Darker border */
+        }
+
+        .rating-section label {
+            margin-right: 5px;
+        }
+
+        .rating-section textarea {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .increment-button,
+        .decrement-button {
+            padding: 2px 5px;
+            cursor: pointer;
+        }
+
+        /* Additional styles can be added here */
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Your Order History</h1>
+    </header>
+    <main>
+        <aside class="sidebar">
+            <h2>Your Orders</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Total Price</th>
+                       
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody">
+                    <!-- Order data will be populated here -->
+                </tbody>
+            </table>
+        </aside>
+        <section class="content">
+            <div id="orderDetails">
+                <input type="text" id="orderIdInput" placeholder="Enter Order ID">
+                <button id="seeDetailsButton">See Details</button>
+                <button id="deleteOrderButton">Delete Order</button>
+            </div>
+            <div id="bookInfoContainer"></div>
+        </section>
+    </main>
+    <script>
+        // JavaScript code starts here
+        async function fetchallOrders() {
+            try {
+                const response = await fetch('/showOrders');
+                if (response.ok) {
+                    const data = await response.json();
+                    const orderTableBody = document.getElementById('orderTableBody');
+
+                    data.forEach(order => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${order.ORDER_ID}</td>
+                            <td>${order.ORDER_DATE}</td>
+                            <td>${order.TOTAL_PRICE}</td>
+                           
+                        `;
+                        orderTableBody.appendChild(row);
+                    });
+                } else {
+                    console.error('Failed to fetch data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchallOrders();
+
+        const seeDetailsButton = document.getElementById('seeDetailsButton');
+        const orderIdInput = document.getElementById('orderIdInput');
+        const bookInfoContainer = document.getElementById('bookInfoContainer');
+
+        seeDetailsButton.addEventListener('click', async () => {
+            const orderId = orderIdInput.value;
+            console.log(orderId);
+            if (!orderId) {
+                alert('Please enter an Order ID.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/showorderdetails/${orderId}`);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.length > 0) {
+                        // Clear previous book details
+                        bookInfoContainer.innerHTML = '';
+
+                        data.forEach(orderDetail => {
+                            console.log(orderDetail);
+
+                            // Create a new div for each book's information
+                            const bookInfoDiv = document.createElement('div');
+                            bookInfoDiv.className = 'book-info';
+
+                            // Create a div for text content
+                            const textDiv = document.createElement('div');
+                            textDiv.className = 'text-content';
+
+                            // Add book information text to the text div
+                            textDiv.innerHTML = `
+                                <p>Book ID: ${orderDetail.BOOK_ID}</p>
+                                <p>Requested Copy: ${orderDetail.REQUSTED_COPY}</p>
+                                <p>Given Copy: ${orderDetail.GIVEN_COPY}</p>
+                            `;
+
+                            const bookImage = document.createElement('img');
+                            bookImage.className = 'book-image';
+
+                            // Set the source of the book image (replace 'book_image_path' with the actual image path)
+                            bookImage.src = `../IMAGE/${orderDetail.BOOK_ID}.jpg`;
+
+                            // Set the size of the book image
+                            bookImage.style.width = '87px'; // You can adjust the width as needed
+                            bookImage.style.height = '130px'; // You can adjust the height as needed
+                            bookImage.alt = `Book Image for Book ID: ${orderDetail.BOOK_ID}`;
+
+                            // Create a div for the rating and comment section
+                            const ratingSection = document.createElement('div');
+                            ratingSection.className = 'rating-section';
+
+                            // Create input for rating
+                            const ratingInput = document.createElement('input');
+                            ratingInput.type = 'number';
+                            ratingInput.min = '1';
+                            ratingInput.max = '5';
+                            ratingInput.value = '1'; // Default value
+                            ratingInput.id = 'rating';
+
+                            // Create buttons for increment and decrement rating
+                            const incrementButton = document.createElement('button');
+                            incrementButton.textContent = '+';
+                            incrementButton.className = 'increment-button';
+
+                            const decrementButton = document.createElement('button');
+                            decrementButton.textContent = '-';
+                            decrementButton.className = 'decrement-button';
+
+                            // Attach event listeners to the increment and decrement buttons for rating
+                            incrementButton.addEventListener('click', () => {
+                                const currentRating = parseInt(ratingInput.value);
+                                if (currentRating < 5) {
+                                    ratingInput.value = (currentRating + 1).toString();
+                                }
+                            });
+
+                            decrementButton.addEventListener('click', () => {
+                                const currentRating = parseInt(ratingInput.value);
+                                if (currentRating > 1) {
+                                    ratingInput.value = (currentRating - 1).toString();
+                                }
+                            });
+
+                            // Create textarea for comments
+                            const commentTextArea = document.createElement('textarea');
+                            commentTextArea.id = 'comment';
+                            commentTextArea.name = 'comment';
+                            commentTextArea.rows = '4';
+                            commentTextArea.cols = '50';
+
+                            // Create a submit button for storing the rating and comment
+                            const submitRatingButton = document.createElement('button');
+                            submitRatingButton.textContent = 'Submit Rating and Comment';
+                            submitRatingButton.id = 'submitRatingButton';
+                            submitRatingButton.className = 'submit-button';
+
+                            // Attach an event listener to the submit button
+                            submitRatingButton.addEventListener('click', async () => {
+                                const bookId = parseInt(orderDetail.BOOK_ID);
+                                const rating = parseInt(ratingInput.value);
+                                const comment = commentTextArea.value;
+
+                                // You can now send this data to your server to store it as needed
+                                // For example, you can use a fetch request to send the data to your API endpoint
+                                // Replace '/submitRatingAndComment' with your actual API endpoint
+                                try {
+                                    const response = await fetch(`/submitRatingAndComment/${bookId}/${rating}/${comment}`);
+                                    
+                                    if (response.ok) {
+                                        alert('Rating and comment submitted successfully!');
+                                        location.reload(); // Refresh the page after submission
+                                    } else {
+                                        console.error('Failed to submit rating and comment:', response.statusText);
+                                    }
+                                } catch (error) {
+                                    console.error('Error submitting rating and comment:', error);
+                                }
+                            });
+
+                            // Append rating and comment elements to the ratingSection div
+                            ratingSection.appendChild(document.createTextNode('Rating: '));
+                            ratingSection.appendChild(ratingInput);
+                            ratingSection.appendChild(incrementButton);
+                            ratingSection.appendChild(decrementButton);
+                            ratingSection.appendChild(document.createElement('br'));
+                            ratingSection.appendChild(document.createTextNode('Comment: '));
+                            ratingSection.appendChild(commentTextArea);
+                            ratingSection.appendChild(document.createElement('br'));
+                            ratingSection.appendChild(submitRatingButton);
+
+                            // Append the book image, text content, and rating section to the bookInfoDiv
+                            bookInfoDiv.appendChild(bookImage);
+                            bookInfoDiv.appendChild(textDiv);
+                            bookInfoDiv.appendChild(ratingSection);
+
+                            // Append the bookInfoDiv to the bookInfoContainer
+                            bookInfoContainer.appendChild(bookInfoDiv);
+                        });
+                    } else {
+                        alert('Order not found.');
+                    }
+                } else {
+                    console.error('Failed to fetch data:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        });
+
+        const deleteOrderButton = document.getElementById('deleteOrderButton');
+
+        deleteOrderButton.addEventListener('click', async () => {
+            const orderId = orderIdInput.value;
+            if (!orderId) {
+                alert('Please enter an Order ID.');
+                return;
+            }
+
+            const confirmDelete = confirm('Are you sure you want to delete this order?');
+
+            if (confirmDelete) {
+                try {
+                    console.log(orderId);
+                    const response = await fetch(`/deleteorder/${orderId}`);
+
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        //alert(responseData.message); // Show a success message
+                        // fetchallOrders(); // Refresh the order list after deletion
+                        // Clear the book details container
+                        bookInfoContainer.innerHTML = '';
+
+                        // Reload the page after a successful deletion
+                        location.reload();
+                    } else {
+                        const errorData = await response.json();
+                        alert(errorData.error); // Show an error message
+                    }
+                } catch (error) {
+                    console.error('Error deleting order:', error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
